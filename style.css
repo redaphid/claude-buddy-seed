@@ -39,6 +39,19 @@ h1 {
   font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gh-link {
+  color: var(--text-dim);
+  transition: color 0.15s;
+  display: inline-flex;
+}
+
+.gh-link:hover {
+  color: var(--text);
 }
 
 .subtitle {
