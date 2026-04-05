@@ -1,0 +1,6 @@
+{
+  "name": "claude-buddy-seed",
+  "version": "0.1.0",
+  "description": "Find a salt for your ideal Claude Code /buddy companion — pure computation, no binary patching",
+  "license": "MIT"
+}

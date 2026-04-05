@@ -1,0 +1,227 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+:root {
+  --bg: #0e0e10;
+  --surface: #1a1a1f;
+  --border: #2a2a30;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --accent: #c4a0ff;
+  --accent-dim: #8860c0;
+
+  --common: #9a9a9a;
+  --uncommon: #5cb85c;
+  --rare: #5bc0de;
+  --epic: #c4a0ff;
+  --legendary: #f0ad4e;
+}
+
+body {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+}
+
+main {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.subtitle code {
+  color: var(--accent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+input,
+select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.65rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent-dim);
+}
+
+select {
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+button {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#search-btn {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.small {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.progress {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-height: 1.2em;
+}
+
+.result {
+  margin-top: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.salt-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.salt-row code {
+  font-size: 1.1rem;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+}
+
+.result-meta b {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.stats {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.stat-label {
+  width: 7em;
+  color: var(--text-dim);
+}
+
+.stat-label.stat-peak {
+  color: var(--accent);
+}
+
+.stat-label.stat-dump {
+  color: #e05050;
+}
+
+.stat-bar {
+  letter-spacing: 0.05em;
+}
+
+.stat-bar.rarity-common { color: var(--common); }
+.stat-bar.rarity-uncommon { color: var(--uncommon); }
+.stat-bar.rarity-rare { color: var(--rare); }
+.stat-bar.rarity-epic { color: var(--epic); }
+.stat-bar.rarity-legendary { color: var(--legendary); }
+
+.stat-value {
+  width: 2em;
+  text-align: right;
+  color: var(--text-dim);
+}
