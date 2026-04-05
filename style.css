@@ -52,6 +52,15 @@ h1 {
   color: var(--accent);
 }
 
+.subtitle a {
+  color: var(--accent-dim);
+  text-decoration: none;
+}
+
+.subtitle a:hover {
+  color: var(--accent);
+}
+
 /* Steps */
 .step {
   margin-bottom: 2rem;

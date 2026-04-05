@@ -203,6 +203,7 @@ function App() {
       <p class="subtitle">
         Find the perfect salt for your Claude <code>/buddy</code> companion.
         Pure math — nothing on your machine is touched.
+        Built on <a href="https://github.com/grayashh/buddy-reroll" target="_blank">buddy-reroll</a>.
       </p>
 
       <section class="step">
