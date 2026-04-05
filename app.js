@@ -5,12 +5,22 @@ import {
   SPECIES,
   RARITIES,
   RARITY_LABELS,
-  RARITY_WEIGHTS,
   EYES,
   HATS,
   STAT_NAMES,
 } from "./lib/companion.js";
 import { estimateAttempts, formatProgress } from "./lib/estimator.js";
+import { generateScript } from "./lib/script.js";
+
+function CopyButton({ text, label = "Copy" }) {
+  const [copied, setCopied] = useState(false);
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [text]);
+  return html`<button type="button" class="small" onClick=${copy}>${copied ? "Copied!" : label}</button>`;
+}
 
 function Select({ id, label, value, onChange, options, labelFn }) {
   return html`
@@ -18,9 +28,7 @@ function Select({ id, label, value, onChange, options, labelFn }) {
       <label for=${id}>${label}</label>
       <select id=${id} value=${value} onChange=${(e) => onChange(e.target.value)}>
         <option value="">any</option>
-        ${options.map(
-          (o) => html`<option key=${o} value=${o}>${labelFn ? labelFn(o) : o}</option>`
-        )}
+        ${options.map((o) => html`<option key=${o} value=${o}>${labelFn ? labelFn(o) : o}</option>`)}
       </select>
     </div>
   `;
@@ -41,46 +49,7 @@ function StatBar({ name, value, rarity, isPeak, isDump }) {
   `;
 }
 
-function Result({ salt, result, onCopy }) {
-  const [copied, setCopied] = useState(false);
-
-  const copy = useCallback(() => {
-    navigator.clipboard.writeText(salt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }, [salt]);
-
-  return html`
-    <section class="result">
-      <div class="salt-row">
-        <code>${salt}</code>
-        <button type="button" class="small" onClick=${copy}>
-          ${copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <div class="result-meta">
-        <span><b>Species:</b> ${result.species}</span>
-        <span><b>Rarity:</b> ${result.rarity}</span>
-        <span><b>Eye:</b> ${result.eye}</span>
-        <span><b>Hat:</b> ${result.hat}</span>
-        <span><b>Shiny:</b> ${result.shiny ? "yes" : "no"}</span>
-      </div>
-      <div class="stats">
-        ${Object.entries(result.stats).map(
-          ([name, value]) =>
-            html`<${StatBar}
-              key=${name}
-              name=${name}
-              value=${value}
-              rarity=${result.rarity}
-              isPeak=${name === result.peak}
-              isDump=${name === result.dump}
-            />`
-        )}
-      </div>
-    </section>
-  `;
-}
+const UUID_CMD = `jq -r '.oauthAccount.accountUuid // .userID' ~/.claude.json`;
 
 function App() {
   const [userId, setUserId] = useState("");
@@ -147,9 +116,7 @@ function App() {
           const elapsed = ((performance.now() - startRef.current) / 1000).toFixed(1);
           killWorkers();
           setSearching(false);
-          setProgress(
-            `Found in ${Math.max(total, msg.attempts).toLocaleString()} tries (${elapsed}s)`
-          );
+          setProgress(`Found in ${Math.max(total, msg.attempts).toLocaleString()} tries (${elapsed}s)`);
           setResult({ salt: msg.salt, roll: msg.result });
         }
       };
@@ -164,6 +131,8 @@ function App() {
     setProgress("");
   }, [killWorkers]);
 
+  const script = result ? generateScript(result.salt, result.roll) : "";
+
   return html`
     <main>
       <h1>buddy seed finder</h1>
@@ -172,41 +141,89 @@ function App() {
         Pure math — nothing on your machine is touched.
       </p>
 
-      <div class="field">
-        <label for="user-id">User ID</label>
-        <input
-          id="user-id"
-          type="text"
-          placeholder="your Claude account UUID"
-          spellcheck="false"
-          value=${userId}
-          onInput=${(e) => setUserId(e.target.value)}
-        />
-      </div>
+      <section class="step">
+        <h2><span class="step-num">1</span> Get your user ID</h2>
+        <p class="hint">Run this in your terminal:</p>
+        <div class="cmd-row">
+          <code class="cmd">${UUID_CMD}</code>
+          <${CopyButton} text=${UUID_CMD} />
+        </div>
+        <p class="hint">Paste the result here:</p>
+        <div class="field">
+          <input
+            id="user-id"
+            type="text"
+            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            spellcheck="false"
+            value=${userId}
+            onInput=${(e) => setUserId(e.target.value)}
+          />
+        </div>
+      </section>
 
-      <div class="grid">
-        <${Select} id="species" label="Species" value=${species} onChange=${setSpecies} options=${SPECIES} />
-        <${Select} id="rarity" label="Rarity" value=${rarity} onChange=${setRarity} options=${RARITIES} labelFn=${(r) => RARITY_LABELS[r]} />
-        <${Select} id="eye" label="Eye" value=${eye} onChange=${setEye} options=${EYES} />
-        <${Select} id="hat" label="Hat" value=${hat} onChange=${setHat} options=${HATS} />
-        <${Select} id="shiny" label="Shiny" value=${shiny} onChange=${setShiny} options=${["true", "false"]} labelFn=${(v) => (v === "true" ? "yes" : "no")} />
-        <${Select} id="peak" label="Best stat" value=${peak} onChange=${setPeak} options=${STAT_NAMES} />
-        <${Select} id="dump" label="Worst stat" value=${dump} onChange=${setDump} options=${STAT_NAMES} />
-      </div>
-
-      <div class="actions">
-        <button type="button" onClick=${search} disabled=${searching}>
-          Find salt
-        </button>
-        ${searching && html`
-          <button type="button" class="secondary" onClick=${cancel}>
-            Cancel
-          </button>
+      <section class="step">
+        <h2><span class="step-num">2</span> Pick your buddy</h2>
+        <div class="grid">
+          <${Select} id="species" label="Species" value=${species} onChange=${setSpecies} options=${SPECIES} />
+          <${Select} id="rarity" label="Rarity" value=${rarity} onChange=${setRarity} options=${RARITIES} labelFn=${(r) => RARITY_LABELS[r]} />
+          <${Select} id="eye" label="Eye" value=${eye} onChange=${setEye} options=${EYES} />
+          <${Select} id="hat" label="Hat" value=${hat} onChange=${setHat} options=${HATS} />
+          <${Select} id="shiny" label="Shiny" value=${shiny} onChange=${setShiny} options=${["true", "false"]} labelFn=${(v) => (v === "true" ? "yes" : "no")} />
+          <${Select} id="peak" label="Best stat" value=${peak} onChange=${setPeak} options=${STAT_NAMES} />
+          <${Select} id="dump" label="Worst stat" value=${dump} onChange=${setDump} options=${STAT_NAMES} />
+        </div>
+        <div class="actions">
+          <button type="button" onClick=${search} disabled=${searching}>Find salt</button>
+          ${searching && html`<button type="button" class="secondary" onClick=${cancel}>Cancel</button>`}
+        </div>
+        ${progress && html`<p class="progress ${searching ? "progress-searching" : ""}">${progress}</p>`}
+        ${result && html`
+          <div class="result-card">
+            <div class="salt-row">
+              <code class="salt">${result.salt}</code>
+              <${CopyButton} text=${result.salt} label="Copy salt" />
+            </div>
+            <div class="result-meta">
+              <span><b>Species:</b> ${result.roll.species}</span>
+              <span><b>Rarity:</b> ${result.roll.rarity}</span>
+              <span><b>Eye:</b> ${result.roll.eye}</span>
+              <span><b>Hat:</b> ${result.roll.hat}</span>
+              <span><b>Shiny:</b> ${result.roll.shiny ? "yes" : "no"}</span>
+            </div>
+            <div class="stats">
+              ${Object.entries(result.roll.stats).map(
+                ([name, value]) => html`<${StatBar}
+                  key=${name} name=${name} value=${value}
+                  rarity=${result.roll.rarity}
+                  isPeak=${name === result.roll.peak}
+                  isDump=${name === result.roll.dump}
+                />`
+              )}
+            </div>
+          </div>
         `}
-      </div>
+      </section>
 
-      ${progress && html`<p class="progress">${progress}</p>`}
-      ${result && html`<${Result} salt=${result.salt} result=${result.roll} />`}
+      ${result && html`
+        <section class="step">
+          <h2><span class="step-num">3</span> Apply it</h2>
+          <p class="hint">
+            Save this as <code>~/.local/bin/puck</code> and run it after Claude updates.
+          </p>
+          <div class="script-block">
+            <div class="script-header">
+              <span>~/.local/bin/puck</span>
+              <${CopyButton} text=${script} label="Copy script" />
+            </div>
+            <pre><code>${script}</code></pre>
+          </div>
+          <p class="hint">Then:</p>
+          <div class="cmd-row">
+            <code class="cmd">chmod +x ~/.local/bin/puck && puck</code>
+            <${CopyButton} text="chmod +x ~/.local/bin/puck && puck" />
+          </div>
+        </section>
+      `}
     </main>
   `;
 }

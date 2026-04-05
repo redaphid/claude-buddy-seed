@@ -30,7 +30,7 @@ body {
 }
 
 main {
-  max-width: 540px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 3rem 1.5rem;
 }
@@ -52,6 +52,63 @@ h1 {
   color: var(--accent);
 }
 
+/* Steps */
+.step {
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.step h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--bg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Command row */
+.cmd-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+}
+
+.cmd {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--accent);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Fields */
 .field {
   display: flex;
   flex-direction: column;
@@ -91,13 +148,13 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 0.75rem;
-  margin-top: 1.25rem;
+  margin-bottom: 1rem;
 }
 
+/* Buttons */
 .actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1.5rem;
 }
 
 button {
@@ -119,7 +176,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#search-btn {
+button:not(.small):not(.secondary) {
   background: var(--accent);
   color: var(--bg);
   font-weight: 600;
@@ -137,25 +194,33 @@ button.small {
   background: var(--surface);
   color: var(--text-dim);
   border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.hidden {
-  display: none !important;
-}
-
+/* Progress */
 .progress {
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   font-size: 0.8rem;
   color: var(--text-dim);
   min-height: 1.2em;
 }
 
-.result {
-  margin-top: 1.5rem;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.progress-searching {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Result card */
+.result-card {
+  margin-top: 1rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .salt-row {
@@ -164,7 +229,7 @@ button.small {
   gap: 0.5rem;
 }
 
-.salt-row code {
+.salt {
   font-size: 1.1rem;
   color: var(--accent);
   word-break: break-all;
@@ -174,7 +239,7 @@ button.small {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.25rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   font-size: 0.8rem;
 }
 
@@ -184,7 +249,7 @@ button.small {
 }
 
 .stats {
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -202,18 +267,10 @@ button.small {
   color: var(--text-dim);
 }
 
-.stat-label.stat-peak {
-  color: var(--accent);
-}
+.stat-label.stat-peak { color: var(--accent); }
+.stat-label.stat-dump { color: #e05050; }
 
-.stat-label.stat-dump {
-  color: #e05050;
-}
-
-.stat-bar {
-  letter-spacing: 0.05em;
-}
-
+.stat-bar { letter-spacing: 0.05em; }
 .stat-bar.rarity-common { color: var(--common); }
 .stat-bar.rarity-uncommon { color: var(--uncommon); }
 .stat-bar.rarity-rare { color: var(--rare); }
@@ -224,4 +281,37 @@ button.small {
   width: 2em;
   text-align: right;
   color: var(--text-dim);
+}
+
+/* Script block */
+.script-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.script-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.script-block pre {
+  margin: 0;
+  padding: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.script-block code {
+  color: var(--text);
 }
