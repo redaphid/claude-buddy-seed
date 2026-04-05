@@ -173,7 +173,7 @@ function App() {
           <${Select} id="dump" label="Worst stat" value=${dump} onChange=${setDump} options=${STAT_NAMES} />
         </div>
         <div class="actions">
-          <button type="button" onClick=${search} disabled=${searching}>Find salt</button>
+          <button type="button" onClick=${search} disabled=${searching}>Reroll</button>
           ${searching && html`<button type="button" class="secondary" onClick=${cancel}>Cancel</button>`}
         </div>
         ${progress && html`<p class="progress ${searching ? "progress-searching" : ""}">${progress}</p>`}
