@@ -315,3 +315,19 @@ button.small {
 .script-block code {
   color: var(--text);
 }
+
+/* Shiki highlighted code */
+.code-highlight .shiki {
+  margin: 0;
+  padding: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  max-height: 24rem;
+  overflow-y: auto;
+  background: transparent !important;
+}
+
+.code-highlight .shiki code {
+  font-family: inherit;
+}

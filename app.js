@@ -1,6 +1,7 @@
 import { render } from "preact";
-import { useState, useRef, useCallback } from "preact/hooks";
+import { useState, useRef, useCallback, useEffect } from "preact/hooks";
 import { html } from "htm/preact";
+import { codeToHtml } from "shiki";
 import {
   SPECIES,
   RARITIES,
@@ -11,6 +12,25 @@ import {
 } from "./lib/companion.js";
 import { estimateAttempts, formatProgress } from "./lib/estimator.js";
 import { generateScript } from "./lib/script.js";
+
+function CodeBlock({ code, lang = "javascript" }) {
+  const ref = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    codeToHtml(code, { lang, theme: "github-dark" }).then((h) => {
+      if (cancelled || !ref.current) return;
+      ref.current.innerHTML = h;
+      setReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [code, lang]);
+
+  return html`<div class="code-highlight" ref=${ref}>
+    ${!ready && html`<pre><code>${code}</code></pre>`}
+  </div>`;
+}
 
 function CopyButton({ text, label = "Copy" }) {
   const [copied, setCopied] = useState(false);
@@ -215,7 +235,7 @@ function App() {
               <span>~/.local/bin/puck</span>
               <${CopyButton} text=${script} label="Copy script" />
             </div>
-            <pre><code>${script}</code></pre>
+            <${CodeBlock} code=${script} />
           </div>
           <p class="hint">Then:</p>
           <div class="cmd-row">
