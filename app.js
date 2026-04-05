@@ -287,6 +287,11 @@ function App() {
             <code class="cmd">chmod +x ~/.local/bin/puck && puck</code>
             <${CopyButton} text="chmod +x ~/.local/bin/puck && puck" />
           </div>
+          <p class="hint">
+            Claude updates replace the binary, which resets your buddy.
+            Just run <code>puck</code> again after each update — the script
+            patches from a pristine backup so it always works.
+          </p>
         </section>
       `}
     </main>
