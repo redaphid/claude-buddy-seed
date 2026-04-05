@@ -69,6 +69,32 @@ function StatBar({ name, value, rarity, isPeak, isDump }) {
   `;
 }
 
+function fmtRate(r) {
+  if (r >= 1e6) return (r / 1e6).toFixed(1) + "M/s";
+  if (r >= 1e3) return (r / 1e3).toFixed(0) + "k/s";
+  return r.toFixed(0) + "/s";
+}
+
+function WorkerBars({ workers }) {
+  if (!workers.length) return null;
+  const maxRate = Math.max(...workers.map((w) => w.rate), 1);
+  return html`
+    <div class="worker-bars">
+      ${workers.map(
+        (w, i) => {
+          const width = Math.max(1, Math.round((w.rate / maxRate) * 12));
+          const bar = "\u2588".repeat(width) + "\u2591".repeat(12 - width);
+          return html`<div key=${i} class="worker-row">
+            <span class="worker-id">W${i}</span>
+            <span class="worker-bar">${bar}</span>
+            <span class="worker-rate">${w.rate > 0 ? fmtRate(w.rate) : "..."}</span>
+          </div>`;
+        }
+      )}
+    </div>
+  `;
+}
+
 const UUID_CMD = `jq -r '.oauthAccount.accountUuid // .userID' ~/.claude.json`;
 
 function App() {
@@ -83,15 +109,18 @@ function App() {
 
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState("");
+  const [workerStats, setWorkerStats] = useState([]);
   const [result, setResult] = useState(null);
   const workersRef = useRef([]);
   const attemptsRef = useRef([]);
+  const prevRef = useRef([]);
   const startRef = useRef(0);
 
   const killWorkers = useCallback(() => {
     for (const w of workersRef.current) w.terminate();
     workersRef.current = [];
     attemptsRef.current = [];
+    prevRef.current = [];
   }, []);
 
   const search = useCallback(() => {
@@ -115,8 +144,10 @@ function App() {
     const expected = estimateAttempts(target);
     const numWorkers = Math.min(navigator.hardwareConcurrency || 4, 8);
     attemptsRef.current = new Array(numWorkers).fill(0);
+    prevRef.current = new Array(numWorkers).fill(null).map(() => ({ attempts: 0, time: performance.now() }));
     startRef.current = performance.now();
     setProgress(`Spawning ${numWorkers} workers...`);
+    setWorkerStats(new Array(numWorkers).fill(null).map(() => ({ rate: 0 })));
 
     for (let i = 0; i < numWorkers; i++) {
       const w = new Worker("./worker.js", { type: "module" });
@@ -125,10 +156,21 @@ function App() {
       w.onmessage = (e) => {
         const msg = e.data;
         if (msg.type === "progress") {
+          const now = performance.now();
           attemptsRef.current[i] = msg.attempts;
+          const prev = prevRef.current[i];
+          const dt = (now - prev.time) / 1000;
+          const rate = dt > 0 ? (msg.attempts - prev.attempts) / dt : 0;
+          prevRef.current[i] = { attempts: msg.attempts, time: now };
+
           const total = attemptsRef.current.reduce((a, b) => a + b, 0);
-          const elapsed = performance.now() - startRef.current;
+          const elapsed = now - startRef.current;
           setProgress(formatProgress(total, elapsed, expected, numWorkers));
+          setWorkerStats((s) => {
+            const next = [...s];
+            next[i] = { rate };
+            return next;
+          });
           return;
         }
         if (msg.type === "found") {
@@ -136,6 +178,7 @@ function App() {
           const elapsed = ((performance.now() - startRef.current) / 1000).toFixed(1);
           killWorkers();
           setSearching(false);
+          setWorkerStats([]);
           setProgress(`Found in ${Math.max(total, msg.attempts).toLocaleString()} tries (${elapsed}s)`);
           setResult({ salt: msg.salt, roll: msg.result });
         }
@@ -148,6 +191,7 @@ function App() {
   const cancel = useCallback(() => {
     killWorkers();
     setSearching(false);
+    setWorkerStats([]);
     setProgress("");
   }, [killWorkers]);
 
@@ -197,6 +241,7 @@ function App() {
           ${searching && html`<button type="button" class="secondary" onClick=${cancel}>Cancel</button>`}
         </div>
         ${progress && html`<p class="progress ${searching ? "progress-searching" : ""}">${progress}</p>`}
+        ${searching && workerStats.length > 0 && html`<${WorkerBars} workers=${workerStats} />`}
         ${result && html`
           <div class="result-card">
             <div class="salt-row">

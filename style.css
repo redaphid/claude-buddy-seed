@@ -214,6 +214,37 @@ button.small {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+/* Worker bars */
+.worker-bars {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.72rem;
+}
+
+.worker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.worker-id {
+  width: 2em;
+  color: var(--text-dim);
+}
+
+.worker-bar {
+  color: var(--accent-dim);
+  letter-spacing: 0.02em;
+}
+
+.worker-rate {
+  width: 5em;
+  text-align: right;
+  color: var(--text-dim);
+}
+
 /* Result card */
 .result-card {
   margin-top: 1rem;
