@@ -286,7 +286,7 @@ function App() {
               <span>~/.local/bin/puck</span>
               <${CopyButton} text=${script} label="Copy script" />
             </div>
-            <${CodeBlock} code=${script} />
+            <${CodeBlock} code=${script} lang="bash" />
           </div>
           <p class="hint">Then:</p>
           <div class="cmd-row">
